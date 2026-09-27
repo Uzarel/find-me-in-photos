@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Face Finder</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>Face Finder</h1>
+    <p>Take a selfie and get every gallery photo you appear in. Everything runs on this computer.</p>
+  </header>
+
+  <main>
+    <section id="status" class="banner" role="status">Checking the gallery…</section>
+
+    <section class="panel">
+      <div class="camera">
+        <video id="video" autoplay playsinline muted hidden></video>
+        <img id="preview" alt="Your selfie" hidden>
+        <div id="placeholder" class="placeholder">Start the camera or upload a photo of yourself</div>
+      </div>
+      <div class="actions">
+        <button id="cameraButton" type="button">Start camera</button>
+        <button id="captureButton" type="button" class="primary" hidden>Take selfie</button>
+        <label class="button">
+          Upload a photo
+          <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+        </label>
+      </div>
+      <p id="message" class="message" role="alert" hidden></p>
+    </section>
+
+    <section id="results" class="panel" hidden>
+      <div class="toolbar">
+        <h2 id="summary"></h2>
+        <label class="slider">
+          Strictness
+          <input id="threshold" type="range" step="0.01">
+          <output id="thresholdValue"></output>
+        </label>
+        <button id="downloadButton" type="button" class="primary">Download as ZIP</button>
+      </div>
+      <p class="hint">Lower strictness finds more photos but may include other people. Scores near the threshold are worth a second look.</p>
+      <div id="grid" class="grid"></div>
+    </section>
+  </main>
+
+  <canvas id="canvas" hidden></canvas>
+  <script src="/static/app.js"></script>
+</body>
+</html>
