@@ -30,6 +30,9 @@ DEFAULTS = {
     "SEARCH_RATE_LIMIT": "60",
 }
 WILDCARD_HOST = "*"
+# The container's health check calls the app on this address (see Dockerfile),
+# so it is allowed even when ALLOWED_HOSTS names only the public address.
+HEALTHCHECK_HOST = "127.0.0.1"
 MIN_ACCESS_CODE_LENGTH = 8
 MAX_ACCESS_CODE_LENGTH = 200
 MAX_EVENT_NAME_LENGTH = 80
@@ -93,7 +96,7 @@ def _read_hosts(env: Mapping[str, str]) -> tuple[str, ...]:
         raise ConfigError("ALLOWED_HOSTS must name at least one host")
     if WILDCARD_HOST in hosts:
         raise ConfigError("ALLOWED_HOSTS must not contain the wildcard '*'")
-    return hosts
+    return hosts if HEALTHCHECK_HOST in hosts else (*hosts, HEALTHCHECK_HOST)
 
 
 def _read_access_code(env: Mapping[str, str]) -> str | None:

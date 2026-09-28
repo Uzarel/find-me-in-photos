@@ -111,6 +111,7 @@ Together these mean a guest cannot choose the address they are counted under.
 | Photos served by exact name from the index | No path from the request ever reaches the file system |
 | Status snapshots are immutable and swapped under a lock | Readers never see a half-updated state |
 | Port bound to `127.0.0.1` in local mode | Local mode has no login |
+| `127.0.0.1` is always an allowed host | The container's health check calls it, whatever `ALLOWED_HOSTS` says |
 | Container is read-only, without capabilities, non-root | Limits what a bug in image decoding could do |
 | Page in plain JavaScript | No build step, and a strict content security policy stays possible |
 | Uploads shrunk in the browser | Phone photos are large and event Wi-Fi is slow |

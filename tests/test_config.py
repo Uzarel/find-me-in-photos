@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from app.config import ConfigError, load_settings
+from app.config import HEALTHCHECK_HOST, ConfigError, load_settings
 
 
 def test_defaults():
@@ -57,7 +57,21 @@ def test_event_settings_are_read():
 
 def test_wildcard_subdomains_are_allowed_hosts():
     settings = load_settings({"ALLOWED_HOSTS": "*.trycloudflare.com"})
-    assert settings.allowed_hosts == ("*.trycloudflare.com",)
+    assert "*.trycloudflare.com" in settings.allowed_hosts
+
+
+def test_health_check_address_is_always_allowed():
+    # Event mode replaces the host list with the public name. The container's
+    # health check still calls the app on its own address.
+    settings = load_settings({"ALLOWED_HOSTS": "myevent.duckdns.org,*.trycloudflare.com"})
+    assert settings.allowed_hosts == (
+        "myevent.duckdns.org", "*.trycloudflare.com", HEALTHCHECK_HOST,
+    )
+
+
+def test_health_check_address_is_not_repeated():
+    settings = load_settings({"ALLOWED_HOSTS": "127.0.0.1,myhost"})
+    assert settings.allowed_hosts == ("127.0.0.1", "myhost")
 
 
 @pytest.mark.parametrize("env", [

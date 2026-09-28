@@ -117,6 +117,9 @@ Each of these cost time once. They are not visible from reading the code.
 - **Docker `ADD --chmod=644` also applies to the folder it creates**, which
   makes it unreadable for the non-root user. The `Dockerfile` sets permissions
   with an explicit `chmod` instead.
+- **The health check calls `127.0.0.1`, and event mode replaces the host
+  list.** `app/config.py` always adds that address to the allowed hosts. If the
+  address in the `Dockerfile` changes, change `HEALTHCHECK_HOST` too.
 - **The app container is read-only.** Code can write only to `/data` (index
   cache) and `/tmp` (512 MB, in memory).
 - **On Docker Desktop all guests share one address** behind the proxy, because

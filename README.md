@@ -36,7 +36,8 @@ Set these as environment variables, or in a `.env` file next to
 
 The app only answers to the host names `localhost` and `127.0.0.1`. To open it
 under another name, add `ALLOWED_HOSTS` to the `environment` section of
-`docker-compose.yml` as a comma-separated list.
+`docker-compose.yml` as a comma-separated list. `127.0.0.1` stays allowed
+whatever the list says, because the container's health check uses it.
 
 Adding or removing photos is picked up on the next restart:
 `docker compose restart face-finder`.

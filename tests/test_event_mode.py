@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from app.access import SESSION_COOKIE, issue_token
+from app.config import load_settings
 from app.main import DOWNLOADS_PER_WINDOW, create_app
 from app.session import MAX_FAILED_LOGINS
 from tests.helpers import FakeExtractor, encode_image, make_face, make_settings, write_image
@@ -15,6 +16,9 @@ SELFIE_LEVEL = 200
 # Must match FORWARDED_ALLOW_IPS in docker-compose.event.yml.
 TRUSTED_PROXIES = "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
 PROXY_ADDRESS = "172.23.0.5"
+# The host list event mode sets, and the address the Dockerfile health check calls.
+PUBLIC_HOSTS = "myevent.duckdns.org,*.trycloudflare.com"
+HEALTHCHECK_URL = "http://127.0.0.1:8000"
 
 
 def build_app(root, **overrides):
@@ -54,6 +58,15 @@ def test_page_and_health_are_open(client):
     assert client.get("/").status_code == 200
     assert client.get("/static/app.js").status_code == 200
     assert client.get("/api/health").status_code == 200
+
+
+def test_health_check_works_behind_a_public_name(tmp_path):
+    hosts = load_settings({"ALLOWED_HOSTS": PUBLIC_HOSTS}).allowed_hosts
+    app = build_app(tmp_path, access_code=CODE, allowed_hosts=hosts)
+    container = TestClient(app, base_url=HEALTHCHECK_URL)
+    assert container.get("/api/health").status_code == 200
+    stranger = TestClient(app, base_url="http://elsewhere.example")
+    assert stranger.get("/api/health").status_code == 400
 
 
 def test_session_reports_event_details(client):
