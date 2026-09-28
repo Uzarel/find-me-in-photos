@@ -29,21 +29,40 @@
    that sets "display" would otherwise win over the browser's own style. */
 [hidden] { display: none !important; }
 
+/* A column as tall as the screen, so the footer sits at the bottom even when
+   the page is short. */
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   background: var(--bg);
   color: var(--text);
   font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-header, main {
+header, main, footer {
+  width: 100%;
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 16px;
 }
 
 header { padding-top: 28px; }
-main { padding-bottom: 32px; }
+main { flex: 1 0 auto; padding-bottom: 32px; }
+
+footer {
+  padding-bottom: 20px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+footer a { color: inherit; text-underline-offset: 2px; }
+footer a:hover, footer a:focus-visible { color: var(--text); }
+.credit { white-space: nowrap; }
+.heart { color: var(--accent); }
 h1 { margin: 0 0 4px; font-size: 1.7rem; line-height: 1.25; overflow-wrap: anywhere; }
 h2 { margin: 0; font-size: 1.1rem; }
 header p, .hint { margin: 0; color: var(--muted); }
@@ -144,6 +163,7 @@ button:disabled, .button.disabled {
   display: block;
   border-radius: 8px;
   overflow: hidden;
+  text-decoration: none;
   background: var(--bg);
   border: 1px solid var(--border);
 }
@@ -205,4 +225,7 @@ button:disabled, .button.disabled {
   .hint { margin-top: 10px; font-size: 0.9rem; }
 
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+
+  .credit { display: block; }
+  .separator { display: none; }
 }
