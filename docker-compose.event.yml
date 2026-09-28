@@ -1,0 +1,63 @@
+# Event mode: share the app with guests over HTTPS, behind an access code.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.event.yml \
+#     --profile proxy up -d --build
+#
+# Use "--profile tunnel" instead of "--profile proxy" for a public link with
+# no router or domain setup. See README.md for the settings.
+
+services:
+  face-finder:
+    # Guests reach the app through the proxy or the tunnel, never directly.
+    ports: !reset []
+    environment:
+      ACCESS_CODE: "${ACCESS_CODE:?Set ACCESS_CODE to a code of 8 or more characters}"
+      EVENT_NAME: "${EVENT_NAME:-Face Finder}"
+      ALLOWED_HOSTS: "${EVENT_HOST:-localhost},*.trycloudflare.com"
+      SEARCH_RATE_LIMIT: "${SEARCH_RATE_LIMIT:-60}"
+      # Trust the guest address reported by the proxy or the tunnel, which sit
+      # on Docker's private network. Addresses a guest makes up are ignored:
+      # never set this to "*", or guests could dodge the rate limits.
+      FORWARDED_ALLOW_IPS: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+
+  proxy:
+    profiles: ["proxy"]
+    image: caddy:2-alpine
+    depends_on:
+      - face-finder
+    ports:
+      - "${EVENT_BIND:-0.0.0.0}:${HTTP_PORT:-80}:80"
+      - "${EVENT_BIND:-0.0.0.0}:${HTTPS_PORT:-443}:443"
+    environment:
+      EVENT_HOST: "${EVENT_HOST:-localhost}"
+      # Empty for a public domain (automatic certificate). For an address on
+      # the local network, set EVENT_TLS="tls internal".
+      EVENT_TLS: "${EVENT_TLS:-}"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE  # to listen on ports 80 and 443
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  tunnel:
+    profiles: ["tunnel"]
+    image: "cloudflare/cloudflared:${CLOUDFLARED_VERSION:-2026.9.3}"
+    depends_on:
+      - face-finder
+    # The public address is printed in this service's logs.
+    command: tunnel --no-autoupdate --url http://face-finder:8000
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  caddy-data:
+  caddy-config:

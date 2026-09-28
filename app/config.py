@@ -22,8 +22,17 @@ DEFAULTS = {
     "GALLERY_MAX_SIDE": "1600",
     # Host names the app answers to; anything else is refused (DNS rebinding).
     "ALLOWED_HOSTS": "localhost,127.0.0.1",
+    # Event mode: setting an access code makes guests log in before searching.
+    "ACCESS_CODE": "",
+    "EVENT_NAME": "Face Finder",
+    # Searches per minute from one address. Guests on the same Wi-Fi can share
+    # an address, so keep this generous.
+    "SEARCH_RATE_LIMIT": "60",
 }
 WILDCARD_HOST = "*"
+MIN_ACCESS_CODE_LENGTH = 8
+MAX_ACCESS_CODE_LENGTH = 200
+MAX_EVENT_NAME_LENGTH = 80
 
 
 class ConfigError(Exception):
@@ -42,6 +51,9 @@ class Settings:
     min_face_size: int
     gallery_max_side: int
     allowed_hosts: tuple[str, ...]
+    access_code: str | None  # None means local mode, with no login
+    event_name: str
+    search_rate_limit: int
 
 
 def _read(env: Mapping[str, str], name: str) -> str:
@@ -84,6 +96,25 @@ def _read_hosts(env: Mapping[str, str]) -> tuple[str, ...]:
     return hosts
 
 
+def _read_access_code(env: Mapping[str, str]) -> str | None:
+    code = _read(env, "ACCESS_CODE")
+    if not code:
+        return None
+    if not MIN_ACCESS_CODE_LENGTH <= len(code) <= MAX_ACCESS_CODE_LENGTH:
+        raise ConfigError(
+            f"ACCESS_CODE must be {MIN_ACCESS_CODE_LENGTH} to "
+            f"{MAX_ACCESS_CODE_LENGTH} characters long"
+        )
+    return code
+
+
+def _read_event_name(env: Mapping[str, str]) -> str:
+    name = _read(env, "EVENT_NAME") or DEFAULTS["EVENT_NAME"]
+    if len(name) > MAX_EVENT_NAME_LENGTH:
+        raise ConfigError(f"EVENT_NAME must be at most {MAX_EVENT_NAME_LENGTH} characters")
+    return name
+
+
 def load_settings(env: Mapping[str, str] = os.environ) -> Settings:
     min_score, threshold = _read_scores(env)
     models_dir = Path(_read(env, "MODELS_DIR"))
@@ -98,4 +129,7 @@ def load_settings(env: Mapping[str, str] = os.environ) -> Settings:
         min_face_size=_read_positive_int(env, "MIN_FACE_SIZE"),
         gallery_max_side=_read_positive_int(env, "GALLERY_MAX_SIDE"),
         allowed_hosts=_read_hosts(env),
+        access_code=_read_access_code(env),
+        event_name=_read_event_name(env),
+        search_rate_limit=_read_positive_int(env, "SEARCH_RATE_LIMIT"),
     )

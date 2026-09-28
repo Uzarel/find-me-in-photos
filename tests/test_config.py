@@ -33,7 +33,38 @@ def test_allowed_hosts_are_parsed():
     assert settings.allowed_hosts == ("myhost", "127.0.0.1")
 
 
+def test_local_mode_is_the_default():
+    settings = load_settings({})
+    assert settings.access_code is None
+    assert settings.event_name == "Face Finder"
+    assert settings.search_rate_limit > 0
+
+
+def test_blank_access_code_means_local_mode():
+    assert load_settings({"ACCESS_CODE": "  "}).access_code is None
+
+
+def test_event_settings_are_read():
+    settings = load_settings({
+        "ACCESS_CODE": " sunny-wedding-42 ",
+        "EVENT_NAME": "Anna & Luca",
+        "SEARCH_RATE_LIMIT": "5",
+    })
+    assert settings.access_code == "sunny-wedding-42"
+    assert settings.event_name == "Anna & Luca"
+    assert settings.search_rate_limit == 5
+
+
+def test_wildcard_subdomains_are_allowed_hosts():
+    settings = load_settings({"ALLOWED_HOSTS": "*.trycloudflare.com"})
+    assert settings.allowed_hosts == ("*.trycloudflare.com",)
+
+
 @pytest.mark.parametrize("env", [
+    {"ACCESS_CODE": "short"},
+    {"ACCESS_CODE": "x" * 201},
+    {"EVENT_NAME": "x" * 81},
+    {"SEARCH_RATE_LIMIT": "0"},
     {"ALLOWED_HOSTS": " , "},
     {"ALLOWED_HOSTS": "*"},
     {"MATCH_THRESHOLD": "abc"},

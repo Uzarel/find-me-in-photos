@@ -1,0 +1,10 @@
+# Gallery photos are personal: never commit them.
+photos/
+
+# Local settings, including the event access code.
+.env
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage

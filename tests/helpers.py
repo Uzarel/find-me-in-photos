@@ -1,6 +1,7 @@
 """Shared test helpers: synthetic images and a fake face extractor."""
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 import cv2
@@ -48,11 +49,15 @@ class FakeExtractor:
         return self._faces_by_level.get(int(image[0, 0, 0]), ())
 
 
-def make_settings(root: Path) -> Settings:
+def make_settings(root: Path, **overrides) -> Settings:
     photos_dir = root / "photos"
     data_dir = root / "data"
     photos_dir.mkdir()
     data_dir.mkdir()
+    return replace(_base_settings(root, photos_dir, data_dir), **overrides)
+
+
+def _base_settings(root: Path, photos_dir: Path, data_dir: Path) -> Settings:
     return Settings(
         photos_dir=photos_dir,
         data_dir=data_dir,
@@ -64,4 +69,7 @@ def make_settings(root: Path) -> Settings:
         min_face_size=20,
         gallery_max_side=1600,
         allowed_hosts=("localhost", "testserver"),
+        access_code=None,
+        event_name="Face Finder",
+        search_rate_limit=1000,
     )

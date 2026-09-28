@@ -1,7 +1,14 @@
-"""The response envelope shared by every API endpoint."""
+"""The response envelope and error type shared by every API endpoint."""
 from __future__ import annotations
 
 from fastapi.responses import JSONResponse
+
+
+class ApiError(Exception):
+    def __init__(self, status_code: int, message: str):
+        super().__init__(message)
+        self.status_code = status_code
+        self.message = message
 
 
 def envelope(data=None, error: str | None = None) -> dict:

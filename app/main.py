@@ -27,10 +27,13 @@ from app.faces import (
     decode_image,
     largest_face,
 )
+from app.access import RateLimiter
 from app.index import FaceIndex, search
-from app.responses import envelope, error_response
-from app.security import BodyLimitMiddleware, SecurityHeadersMiddleware
+from app.responses import ApiError, envelope, error_response
+from app.security import AccessMiddleware, BodyLimitMiddleware, SecurityHeadersMiddleware
 from app.service import STATE_ERROR, IndexService
+from app.session import create_login_limiter
+from app.session import router as session_router
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 # YuNet works best on moderately sized faces, so selfies are tried small first.
@@ -44,16 +47,11 @@ MAX_DOWNLOAD_BYTES = 2 * 1024 * 1024 * 1024
 # Room for the multipart boundaries and headers around an upload.
 REQUEST_OVERHEAD_BYTES = 64 * 1024
 SCORE_DECIMALS = 4
+RATE_WINDOW_SECONDS = 60
+DOWNLOADS_PER_WINDOW = 10
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-
-class ApiError(Exception):
-    def __init__(self, status_code: int, message: str):
-        super().__init__(message)
-        self.status_code = status_code
-        self.message = message
 
 
 class DownloadRequest(BaseModel):
@@ -241,16 +239,24 @@ def create_app(settings: Settings, extractor: FaceExtractor,
     app.state.settings = settings
     app.state.extractor = extractor
     app.state.service = service
+    app.state.login_limiter = create_login_limiter()
+    limiters = {
+        "/api/search": RateLimiter(settings.search_rate_limit, RATE_WINDOW_SECONDS),
+        "/api/download": RateLimiter(DOWNLOADS_PER_WINDOW, RATE_WINDOW_SECONDS),
+    }
     app.add_exception_handler(ApiError, handle_api_error)
     app.add_exception_handler(StarletteHTTPException, handle_http_error)
     app.add_exception_handler(RequestValidationError, handle_validation_error)
     app.add_exception_handler(Exception, handle_unexpected_error)
     # Added innermost first: the security headers end up on every response.
+    app.add_middleware(AccessMiddleware, access_code=settings.access_code,
+                       limiters=limiters)
     app.add_middleware(BodyLimitMiddleware,
                        max_bytes=settings.max_upload_bytes + REQUEST_OVERHEAD_BYTES)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(settings.allowed_hosts))
     app.add_middleware(SecurityHeadersMiddleware)
     app.include_router(router)
+    app.include_router(session_router)
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     return app
 

@@ -99,6 +99,19 @@ button.primary {
   border-color: var(--accent);
 }
 
+#login h2 { margin-bottom: 4px; }
+
+input[type="password"] {
+  flex: 1 1 200px;
+  max-width: 320px;
+  padding: 9px 12px;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
 button:disabled, .button.disabled {
   opacity: 0.5;
   cursor: not-allowed;
