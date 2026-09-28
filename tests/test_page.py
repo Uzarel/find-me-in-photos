@@ -24,6 +24,15 @@ def test_page_adapts_to_phone_screens():
     assert "@media (max-width:" in read_static("style.css")
 
 
+def test_page_says_when_the_selfie_shows_several_faces():
+    # The search uses the largest face only. The guest has to be told, or a
+    # group photo returns someone else's photos with no explanation.
+    assert 'id="notice"' in read_static("index.html")
+    script = read_static("app.js")
+    assert "faces_in_selfie" in script
+    assert "el.notice" in script
+
+
 def test_page_credits_the_project():
     assert f'href="{REPO_URL}"' in read_static("index.html")
 

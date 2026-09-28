@@ -201,6 +201,9 @@ Stop event mode with the same command, replacing `up -d --build` with `down`.
 3. **Match**: the selfie's fingerprint is compared with every face by cosine
    similarity; each photo is scored by its best-matching face.
 
+The search uses one face. If the selfie shows several, the largest one is
+used and the page says so, because the results may belong to someone else.
+
 Scores run from 0 to 1. The slider starts at 0.363, the threshold recommended
 by the SFace authors. Matches close to the threshold deserve a second look:
 small, blurred or side-on faces score lower, and relatives can score

@@ -78,6 +78,14 @@ header p, .hint { margin: 0; color: var(--muted); }
 .banner.error, .message { color: var(--error); }
 .message { margin: 12px 0 0; }
 
+.notice {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
 .camera {
   display: flex;
   justify-content: center;

@@ -11,7 +11,7 @@ const UNAUTHORIZED = 401;
 const el = Object.fromEntries(
   ["title", "login", "loginForm", "codeInput", "loginMessage", "finder", "status",
    "video", "preview", "placeholder", "cameraButton", "captureButton", "fileInput",
-   "message", "results", "summary", "threshold", "thresholdValue", "downloadButton",
+   "notice", "message", "results", "summary", "threshold", "thresholdValue", "downloadButton",
    "grid", "canvas"].map((id) => [id, document.getElementById(id)])
 );
 
@@ -27,6 +27,17 @@ function showText(element, text) {
 }
 
 const showMessage = (text) => showText(el.message, text);
+const showNotice = (text) => showText(el.notice, text);
+
+// The search uses one face. With several in the photo, the guest may get the
+// photos of whoever is closest to the camera, so the page says what it did.
+function describeFaces(count) {
+  if (count <= 1) {
+    return "";
+  }
+  return `There are ${count} faces in your photo, so we searched for the largest one. `
+    + "If these are not your photos, use a photo with only you in it.";
+}
 
 function setStatus(text, isError = false) {
   el.status.textContent = text;
@@ -183,6 +194,7 @@ function stopCamera() {
 
 async function startCamera() {
   showMessage("");
+  showNotice("");
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     showMessage("This browser cannot access the camera here. Upload a photo instead.");
     return;
@@ -256,6 +268,7 @@ async function findPhotos(blob) {
     return;
   }
   showPreview(blob);
+  showNotice("");
   if (!state.ready) {
     showMessage("The gallery is not ready yet. Try again when indexing has finished.");
     return;
@@ -271,6 +284,7 @@ async function findPhotos(blob) {
     const response = await request("/api/search", { method: "POST", body: form });
     const data = await readEnvelope(response);
     update({ matches: data.matches });
+    showNotice(describeFaces(data.faces_in_selfie));
     renderResults();
   } catch (error) {
     el.results.hidden = true;
