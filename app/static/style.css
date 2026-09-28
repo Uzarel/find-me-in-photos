@@ -25,6 +25,10 @@
 
 * { box-sizing: border-box; }
 
+/* The page shows and hides parts with the "hidden" attribute. Any rule below
+   that sets "display" would otherwise win over the browser's own style. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   background: var(--bg);
@@ -39,7 +43,8 @@ header, main {
 }
 
 header { padding-top: 28px; }
-h1 { margin: 0 0 4px; font-size: 1.7rem; }
+main { padding-bottom: 32px; }
+h1 { margin: 0 0 4px; font-size: 1.7rem; line-height: 1.25; overflow-wrap: anywhere; }
 h2 { margin: 0; font-size: 1.1rem; }
 header p, .hint { margin: 0; color: var(--muted); }
 
@@ -86,6 +91,7 @@ header p, .hint { margin: 0; color: var(--muted); }
 button, .button {
   padding: 9px 16px;
   font: inherit;
+  text-align: center;
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
@@ -168,4 +174,35 @@ button:disabled, .button.disabled {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+@media (max-width: 600px) {
+  header { padding-top: 20px; }
+  h1 { font-size: 1.4rem; }
+
+  .banner, .panel { margin-top: 12px; padding: 12px; }
+
+  .camera { min-height: 180px; }
+  .camera video, .camera img { max-height: 60vh; }
+  .placeholder { padding: 20px 16px; }
+
+  /* Buttons share the row evenly and are tall enough to tap. */
+  .actions button, .actions .button {
+    flex: 1 1 140px;
+    padding: 12px 16px;
+  }
+
+  input[type="password"] {
+    flex-basis: 100%;
+    max-width: none;
+    padding: 12px;
+  }
+
+  .toolbar h2 { flex-basis: 100%; }
+  .slider { flex: 1 1 100%; }
+  .slider input { flex: 1 1 auto; min-width: 0; }
+  .toolbar button { flex: 1 1 100%; padding: 12px 16px; }
+  .hint { margin-top: 10px; font-size: 0.9rem; }
+
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 }
