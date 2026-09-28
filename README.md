@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo.svg" alt="Find Me In Photos logo" width="160">
+</p>
+
 # Find Me In Photos
 
 A free, open source web app for events. Guests open a link, take a selfie and

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 2000" role="img" aria-labelledby="title">
+  <title id="title">Find Me In Photos</title>
+
+  <!-- Everything is centred on (1000, 1000). One colour, set here. -->
+  <style>
+    .ink { color: #373e4e; }
+    @media (prefers-color-scheme: dark) { .ink { color: #efece5; } }
+    .fill { fill: currentColor; }
+    .line { fill: none; stroke: currentColor; stroke-width: 68; stroke-linecap: round; }
+    .frame { fill: none; stroke: currentColor; stroke-width: 180; }
+  </style>
+
+  <!-- What is cut out of the frame: two gaps and the small round window. -->
+  <mask id="cuts" maskUnits="userSpaceOnUse" x="0" y="0" width="2000" height="2000">
+    <rect width="2000" height="2000" fill="#fff"/>
+    <rect x="350" y="812" width="220" height="66"/>
+    <rect x="1430" y="1122" width="220" height="66"/>
+    <circle cx="1360" cy="460" r="40"/>
+  </mask>
+
+  <g class="ink">
+    <!-- Camera frame: a rounded square, 1260 wide outside, 180 thick. -->
+    <rect class="frame" x="460" y="460" width="1080" height="1080" rx="160" mask="url(#cuts)"/>
+
+    <!-- Person: head circle, chin notches and neck joined to the frame. -->
+    <path class="fill" d="M 1225 1300 A 375 375 0 1 0 775 1300 L 805 1253.7
+                          A 320 320 0 0 0 885 1298.6 L 855 1460 H 1145 L 1115 1298.6
+                          A 320 320 0 0 0 1195 1253.7 Z"/>
+
+    <!-- Crosshair: four lines from the frame to four dots on a circle of radius 872. -->
+    <path class="line" d="M 1000 128 V 400 M 1000 1872 V 1600 M 128 1000 H 400 M 1872 1000 H 1600"/>
+    <circle class="fill" cx="1000" cy="128" r="98"/>
+    <circle class="fill" cx="1000" cy="1872" r="98"/>
+    <circle class="fill" cx="128" cy="1000" r="98"/>
+    <circle class="fill" cx="1872" cy="1000" r="98"/>
+
+    <!-- Two arcs of radius 905, from 13 to 77 degrees off the axes. -->
+    <path class="line" d="M 118.2 796.4 A 905 905 0 0 1 796.4 118.2
+                          M 1203.6 118.2 A 905 905 0 0 1 1881.8 796.4"/>
+  </g>
+</svg>
