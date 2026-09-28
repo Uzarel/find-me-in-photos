@@ -2,7 +2,7 @@
 {$EVENT_HOST} {
 	{$EVENT_TLS}
 	encode gzip
-	reverse_proxy face-finder:8000 {
+	reverse_proxy find-me-in-photos:8000 {
 		# Report the address the guest really connected from, replacing
 		# anything the guest sent: the app's rate limits depend on it.
 		header_up X-Forwarded-For {remote_host}

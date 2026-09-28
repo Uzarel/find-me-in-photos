@@ -1,9 +1,9 @@
 # Agent guide
 
-Face Finder is a small self-hosted web app: someone takes a selfie and gets
-every photo of a gallery they appear in. It runs in Docker, in two modes:
-local (one user, no login) and event (shared with guests over HTTPS, behind an
-access code).
+Find Me In Photos is a small self-hosted web app for events: a guest takes a
+selfie and gets every photo of the gallery they appear in. It runs in Docker,
+in two modes: event (shared with guests over HTTPS, behind an access code) and
+local (one user, no login).
 
 Read `README.md` for usage and settings, and `docs/architecture.md` for how the
 parts fit together and why they are built this way.
@@ -16,7 +16,7 @@ Tests run only in Docker. The host is not expected to have `pytest` or OpenCV.
 docker compose --profile test build test      # rebuild after EVERY code change
 docker compose --profile test run --rm test   # run the suite with coverage
 docker compose up -d --build                  # run the app at http://localhost:8000
-docker compose logs -f face-finder
+docker compose logs -f find-me-in-photos
 ```
 
 The code is copied into the image, not mounted. If you skip the rebuild, you
@@ -33,6 +33,9 @@ docker compose -f docker-compose.yml -f docker-compose.event.yml --profile proxy
 Then use `curl -k https://localhost:8443/...`. Stop it with the same command
 and `down`, then start local mode again if it was running before.
 
+If the owner's own stack is running, do not replace it. Add `-p verify` to the
+command to start a separate copy, and remove it with `down -v` afterwards.
+
 ## Layout
 
 | Path | Responsibility |
@@ -48,6 +51,7 @@ and `down`, then start local mode again if it was running before.
 | `app/main.py` | Routes, exception handlers, app factory, middleware order |
 | `app/static/` | Page, in plain HTML, CSS and JavaScript (no build step) |
 | `tests/helpers.py` | `FakeExtractor`, synthetic images, `make_settings` |
+| `tests/test_page.py` | Static checks on the page files (no browser) |
 | `docker-compose.event.yml`, `Caddyfile` | Event mode: HTTPS proxy or tunnel |
 
 ## Rules that must not be broken
@@ -117,6 +121,10 @@ Each of these cost time once. They are not visible from reading the code.
 - **Docker `ADD --chmod=644` also applies to the folder it creates**, which
   makes it unreadable for the non-root user. The `Dockerfile` sets permissions
   with an explicit `chmod` instead.
+- **A CSS rule that sets `display` shows elements marked `hidden`.** The page
+  hides parts with the `hidden` attribute, and any `display` rule beats the
+  browser's style for it. `style.css` has a `[hidden]` rule with `!important`
+  for this; keep it.
 - **The health check calls `127.0.0.1`, and event mode replaces the host
   list.** `app/config.py` always adds that address to the allowed hosts. If the
   address in the `Dockerfile` changes, change `HEALTHCHECK_HOST` too.
@@ -142,6 +150,9 @@ Each of these cost time once. They are not visible from reading the code.
 ## Known gaps
 
 - The public domain setup (DuckDNS, port forwarding) is documented but untested.
-- The page has no automated tests and was only exercised through the API.
+- The page has no browser tests. `tests/test_page.py` only checks the files,
+  and the layout was checked by hand in headless Chrome.
+- The session cookie (`ff_session`) and the key salt in `app/access.py` keep
+  the project's first name, Face Finder. Renaming them ends every session.
 - Logout clears the cookie on that device only. Sessions are stateless, so a
   copied cookie stays valid until it expires (12 hours).

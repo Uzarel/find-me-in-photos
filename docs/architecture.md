@@ -1,6 +1,6 @@
 # Architecture
 
-How Face Finder works, and why it is built this way. For commands and rules,
+How Find Me In Photos works, and why it is built this way. For commands and rules,
 see `AGENTS.md`. For usage, see `README.md`.
 
 ## The idea

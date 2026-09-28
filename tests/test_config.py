@@ -36,7 +36,7 @@ def test_allowed_hosts_are_parsed():
 def test_local_mode_is_the_default():
     settings = load_settings({})
     assert settings.access_code is None
-    assert settings.event_name == "Face Finder"
+    assert settings.event_name == "Find Me In Photos"
     assert settings.search_rate_limit > 0
 
 

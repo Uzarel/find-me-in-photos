@@ -70,6 +70,6 @@ def _base_settings(root: Path, photos_dir: Path, data_dir: Path) -> Settings:
         gallery_max_side=1600,
         allowed_hosts=("localhost", "testserver"),
         access_code=None,
-        event_name="Face Finder",
+        event_name="Find Me In Photos",
         search_rate_limit=1000,
     )

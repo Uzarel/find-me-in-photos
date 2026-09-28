@@ -7,12 +7,12 @@
 # no router or domain setup. See README.md for the settings.
 
 services:
-  face-finder:
+  find-me-in-photos:
     # Guests reach the app through the proxy or the tunnel, never directly.
     ports: !reset []
     environment:
       ACCESS_CODE: "${ACCESS_CODE:?Set ACCESS_CODE to a code of 8 or more characters}"
-      EVENT_NAME: "${EVENT_NAME:-Face Finder}"
+      EVENT_NAME: "${EVENT_NAME:-Find Me In Photos}"
       ALLOWED_HOSTS: "${EVENT_HOST:-localhost},*.trycloudflare.com"
       SEARCH_RATE_LIMIT: "${SEARCH_RATE_LIMIT:-60}"
       # Trust the guest address reported by the proxy or the tunnel, which sit
@@ -24,7 +24,7 @@ services:
     profiles: ["proxy"]
     image: caddy:2-alpine
     depends_on:
-      - face-finder
+      - find-me-in-photos
     ports:
       - "${EVENT_BIND:-0.0.0.0}:${HTTP_PORT:-80}:80"
       - "${EVENT_BIND:-0.0.0.0}:${HTTPS_PORT:-443}:443"
@@ -49,9 +49,9 @@ services:
     profiles: ["tunnel"]
     image: "cloudflare/cloudflared:${CLOUDFLARED_VERSION:-2026.9.3}"
     depends_on:
-      - face-finder
+      - find-me-in-photos
     # The public address is printed in this service's logs.
-    command: tunnel --no-autoupdate --url http://face-finder:8000
+    command: tunnel --no-autoupdate --url http://find-me-in-photos:8000
     cap_drop:
       - ALL
     security_opt:

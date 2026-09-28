@@ -235,7 +235,7 @@ def create_app(settings: Settings, extractor: FaceExtractor,
             service.start()
         yield
 
-    app = FastAPI(title="Face Finder", lifespan=lifespan, docs_url=None, redoc_url=None)
+    app = FastAPI(title="Find Me In Photos", lifespan=lifespan, docs_url=None, redoc_url=None)
     app.state.settings = settings
     app.state.extractor = extractor
     app.state.service = service

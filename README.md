@@ -1,27 +1,63 @@
-# Face Finder
+# Find Me In Photos
 
-Take a selfie, get every gallery photo you appear in. Runs entirely on your
-computer: the selfie is analysed in memory and never stored or sent anywhere.
+A free, open source web app for events. Guests open a link, take a selfie and
+get every photo of the gallery they appear in.
 
-Two ways to use it:
+After a wedding, a party or a conference there are hundreds of photos, and
+each guest wants the few they are in. Put the photos in a folder, start the
+app and share the link. Each guest finds their own photos and downloads them
+as a ZIP file.
 
-- **Local mode**: just for you, on your own computer.
-- **Event mode**: shared with guests over HTTPS, behind an access code.
+- **Made for guests.** Nothing to install and no account to create. It works
+  in the browser of any phone.
+- **Self-hosted.** The app and the gallery stay on your own computer. Selfies
+  are analysed in memory and never stored.
+- **Free.** MIT licence, with no fee per event, per photo or per guest.
+- **Small.** One Docker command on an ordinary laptop. No graphics card and no
+  cloud account.
 
-## Run
+## How it differs from other face search projects
+
+Most of them are libraries for developers, or tools that sort your own photo
+collection. This is a finished app for one job: letting many people each find
+their own photos in a shared gallery.
+
+That job needs more than face matching, so the app comes with:
+
+- HTTPS, which phones require before they allow camera access
+- an access code and a join link, which you can print as a QR code
+- limits on searches and on wrong codes
+- three ways to publish it, including one that needs no router or domain setup
+- a page that fits a phone screen
+
+It can also run in **local mode**, just for you on your own computer, with no
+login. That is the quickest way to try it.
+
+## Quick start
+
+You need [Docker](https://docs.docker.com/get-docker/).
+
+```
+git clone https://github.com/Uzarel/find-me-in-photos.git
+cd find-me-in-photos
+```
+
+Copy your photos into the `photos` folder, then start the app in local mode:
 
 ```
 docker compose up -d --build
 ```
 
-Then open http://localhost:8000. The first start indexes the gallery (about
+Open http://localhost:8000. The first start indexes the gallery (about
 10 seconds for 225 photos); later starts reuse the cached index.
 
 ```
-docker compose logs -f face-finder   # follow the logs
-docker compose down                  # stop
-docker compose down -v               # stop and delete the cached index
+docker compose logs -f find-me-in-photos   # follow the logs
+docker compose down                        # stop
+docker compose down -v                     # stop and delete the cached index
 ```
+
+To share it with guests, continue with [Event mode](#event-mode).
 
 ## Settings
 
@@ -40,7 +76,7 @@ under another name, add `ALLOWED_HOSTS` to the `environment` section of
 whatever the list says, because the container's health check uses it.
 
 Adding or removing photos is picked up on the next restart:
-`docker compose restart face-finder`.
+`docker compose restart find-me-in-photos`.
 
 ## Event mode
 
@@ -137,7 +173,7 @@ stays out of the logs. Guests who open the plain address are asked for the code.
 | Variable | Default | Meaning |
 |---|---|---|
 | `ACCESS_CODE` | none, required | Code guests enter, 8 characters or more |
-| `EVENT_NAME` | `Face Finder` | Title shown on the page |
+| `EVENT_NAME` | `Find Me In Photos` | Title shown on the page |
 | `EVENT_HOST` | `localhost` | Name or address guests open (proxy only) |
 | `EVENT_TLS` | empty | Set to `tls internal` on a local network (proxy only) |
 | `SEARCH_RATE_LIMIT` | `60` | Searches per minute from one address |
@@ -183,3 +219,16 @@ docker compose --profile test run --rm test
 
 The suite includes an end-to-end check that runs the real models against the
 mounted photos; it is skipped when the photos folder is empty.
+
+## Contributing
+
+Issues and pull requests are welcome. `AGENTS.md` lists the rules and
+conventions of the code, and `docs/architecture.md` explains the design.
+
+## Licence
+
+[MIT](LICENSE). You can use, change and share the app freely, including for
+paid events.
+
+The face models are downloaded when the image is built and keep their own
+licences: YuNet is MIT and SFace is Apache 2.0.

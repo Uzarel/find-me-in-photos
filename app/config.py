@@ -24,7 +24,7 @@ DEFAULTS = {
     "ALLOWED_HOSTS": "localhost,127.0.0.1",
     # Event mode: setting an access code makes guests log in before searching.
     "ACCESS_CODE": "",
-    "EVENT_NAME": "Face Finder",
+    "EVENT_NAME": "Find Me In Photos",
     # Searches per minute from one address. Guests on the same Wi-Fi can share
     # an address, so keep this generous.
     "SEARCH_RATE_LIMIT": "60",
